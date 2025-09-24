@@ -34,8 +34,8 @@ NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
 
 # AI Services (Future Integration)
-LANGFLOW_API_URL=your_langflow_api_endpoint
-LANGFLOW_API_KEY=your_langflow_api_key
+smythos_API_URL=your_smythos_api_endpoint
+smythos_API_KEY=your_smythos_api_key
 
 # SMS Service (Future Integration)
 SMS_API_KEY=your_sms_service_key
@@ -110,7 +110,7 @@ SMS_API_URL=your_sms_service_url
 
 ## 🤖 AI Integration Points
 
-### Ready for Langflow Integration
+### Ready for smythos Integration
 All routes include TODO comments for AI agent calls:
 
 1. **Validation Agent**: Verify donation and request authenticity
@@ -176,7 +176,7 @@ All API responses follow a consistent format:
 
 - [ ] Deploy to production environment
 - [ ] Configure SMS service for OTP
-- [ ] Integrate Langflow AI agents
+- [ ] Integrate smythos AI agents
 - [ ] Set up image storage for delivery proof
 - [ ] Configure real-time notifications
 - [ ] Add comprehensive logging

@@ -61,7 +61,7 @@ import matchingRoutes from './routes/matching.js';
 import chatRoutes from './routes/chat.js';
 import authRoutes from './routes/auth.js';
 // Removed unused routes: ai.js, aiRouting.js, aiNotifications.js, simpleRouting.js, simpleNotifications.js
-// aiService.ts in frontend calls Langflow directly, bypassing these backend routes
+// aiService.ts in frontend calls smythos directly, bypassing these backend routes
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -70,7 +70,7 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/volunteers', volunteerRoutes);
 app.use('/api/matching', matchingRoutes);
 app.use('/api/chat', chatRoutes);
-// Removed unused route mounts - frontend uses aiService.ts for direct Langflow integration
+// Removed unused route mounts - frontend uses aiService.ts for direct smythos integration
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

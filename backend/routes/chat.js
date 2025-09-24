@@ -5,9 +5,9 @@ import fetch from 'node-fetch';
 
 const router = express.Router();
 
-// Langflow AI Chatbot Agent Configuration
-const LANGFLOW_CHATBOT_ENDPOINT = process.env.LANGFLOW_CHATBOT_URL || 'https://your-langflow-url.agent.a.smyth.ai/api/chat_assistant';
-const LANGFLOW_API_KEY = process.env.LANGFLOW_API_KEY || '';
+// smythos AI Chatbot Agent Configuration
+const smythos_CHATBOT_ENDPOINT = process.env.smythos_CHATBOT_URL || 'https://your-smythos-url.agent.a.smyth.ai/api/chat_assistant';
+const smythos_API_KEY = process.env.smythos_API_KEY || '';
 
 // In-memory chat sessions (in production, use Redis or database)
 const chatSessions = new Map();
@@ -58,8 +58,8 @@ router.post('/message', validateChatMessage, async (req, res) => {
 
         session.messages.push(userMessage);
 
-        // Call real Langflow AI Chatbot Agent
-        let aiResponse = await callLangflowChatbotAgent(message, language, session);
+        // Call real smythos AI Chatbot Agent
+        let aiResponse = await callsmythosChatbotAgent(message, language, session);
 
         // Add AI response to session
         const assistantMessage = {
@@ -246,11 +246,11 @@ router.delete('/sessions/:session_id', async (req, res) => {
 // Helper functions
 
 /**
- * Call Langflow AI Chatbot Agent for intelligent conversation
+ * Call smythos AI Chatbot Agent for intelligent conversation
  */
-async function callLangflowChatbotAgent(message, language, session) {
+async function callsmythosChatbotAgent(message, language, session) {
     try {
-        console.log('🤖 Calling Langflow Chatbot Agent...');
+        console.log('🤖 Calling smythos Chatbot Agent...');
 
         // Prepare conversation context for AI
         const conversationContext = {
@@ -273,11 +273,11 @@ async function callLangflowChatbotAgent(message, language, session) {
             }
         };
 
-        const response = await fetch(LANGFLOW_CHATBOT_ENDPOINT, {
+        const response = await fetch(smythos_CHATBOT_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${LANGFLOW_API_KEY}`,
+                'Authorization': `Bearer ${smythos_API_KEY}`,
                 'User-Agent': 'Jonoshongjog-Relief-Platform/1.0'
             },
             body: JSON.stringify({
@@ -289,12 +289,12 @@ async function callLangflowChatbotAgent(message, language, session) {
         });
 
         if (!response.ok) {
-            throw new Error(`Langflow API error: ${response.status} ${response.statusText}`);
+            throw new Error(`smythos API error: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
 
-        // Handle Langflow response format
+        // Handle smythos response format
         let aiResult;
         if (data.outputs && data.outputs[0] && data.outputs[0].outputs && data.outputs[0].outputs[0]) {
             const output = data.outputs[0].outputs[0];
@@ -302,7 +302,7 @@ async function callLangflowChatbotAgent(message, language, session) {
         } else if (data.result) {
             aiResult = typeof data.result === 'string' ? JSON.parse(data.result) : data.result;
         } else {
-            throw new Error('Invalid Langflow response format');
+            throw new Error('Invalid smythos response format');
         }
 
         console.log('✅ AI Chatbot Response received');
@@ -317,7 +317,7 @@ async function callLangflowChatbotAgent(message, language, session) {
         };
 
     } catch (error) {
-        console.error('🚨 Langflow Chatbot API Error:', error);
+        console.error('🚨 smythos Chatbot API Error:', error);
 
         // Fallback to simple rule-based response
         console.log('⚠️  Using fallback chatbot response...');

@@ -4,8 +4,8 @@ import type { AxiosResponse } from 'axios';
 // AI Service Configuration
 const AI_BASE_URL = import.meta.env.VITE_AI_SERVICE_URL || 'http://localhost:8000';
 
-// Langflow Agent Endpoints
-const LANGFLOW_ENDPOINTS = {
+// smythos Agent Endpoints
+const smythos_ENDPOINTS = {
     validation: 'https://cmfw9wsphyeox2py58aajifs6.agent.a.smyth.ai/api/validate_donation',
     matching: 'https://cmfvkr7nrwgrgjxgt6sbvbocw.agent.a.smyth.ai/api/match_donation',
     routing: 'https://cmfiillu5dqt2o3wtgst76z6k.agent.a.smyth.ai/api/assign_volunteer',
@@ -22,8 +22,8 @@ const aiClient = axios.create({
     },
 });
 
-// Create axios instance for Langflow agents
-const langflowClient = axios.create({
+// Create axios instance for smythos agents
+const smythosClient = axios.create({
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ interface ValidationResult {
     autoApprove: boolean;
 }
 
-// Matching Agent Types - Updated for Langflow format
+// Matching Agent Types - Updated for smythos format
 interface MatchingRequest {
     triggerType: 'newDonation' | 'newRequest';
     primaryItem: {
@@ -187,46 +187,46 @@ interface NotificationResult {
 
 // AI Service Class
 class AIService {
-    // Validation Agent - Using Real Langflow Endpoint
+    // Validation Agent - Using Real smythos Endpoint
     async validateSubmission(request: ValidationRequest): Promise<AIResponse<ValidationResult>> {
         try {
-            console.log('🤖 Calling Langflow Validation Agent:', LANGFLOW_ENDPOINTS.validation);
+            console.log('🤖 Calling smythos Validation Agent:', smythos_ENDPOINTS.validation);
             console.log('📤 Request payload:', JSON.stringify(request, null, 2));
 
-            // Call the actual Langflow validation agent
-            const response: AxiosResponse<any> = await langflowClient.post(
-                LANGFLOW_ENDPOINTS.validation,
+            // Call the actual smythos validation agent
+            const response: AxiosResponse<any> = await smythosClient.post(
+                smythos_ENDPOINTS.validation,
                 request
             );
 
-            console.log('📥 Raw Langflow response:', response.data);
+            console.log('📥 Raw smythos response:', response.data);
 
-            // Extract the actual validation result from Langflow's nested response
+            // Extract the actual validation result from smythos's nested response
             let validationResult: ValidationResult;
 
             if (response.data?.result?.Output?.result) {
-                // Langflow format: {"result": {"Output": {"result": {...}}}}
-                const langflowResult = response.data.result.Output.result;
+                // smythos format: {"result": {"Output": {"result": {...}}}}
+                const smythosResult = response.data.result.Output.result;
                 validationResult = {
-                    isValid: langflowResult.isValid || false,
-                    confidence: langflowResult.confidence || 0,
-                    issues: langflowResult.issues || [],
-                    suggestions: langflowResult.suggestions || [],
-                    riskLevel: langflowResult.riskLevel || 'medium',
-                    autoApprove: langflowResult.autoApprove || false
+                    isValid: smythosResult.isValid || false,
+                    confidence: smythosResult.confidence || 0,
+                    issues: smythosResult.issues || [],
+                    suggestions: smythosResult.suggestions || [],
+                    riskLevel: smythosResult.riskLevel || 'medium',
+                    autoApprove: smythosResult.autoApprove || false
                 };
             } else if (response.data?.isValid !== undefined) {
                 // Direct format (fallback compatibility)
                 validationResult = response.data as ValidationResult;
             } else {
                 // Unexpected format - use fallback
-                throw new Error('Unexpected response format from Langflow');
+                throw new Error('Unexpected response format from smythos');
             }
 
             console.log('✅ Parsed validation result:', validationResult);
 
-            // Log successful Langflow integration
-            console.log('🎉 Langflow Validation Agent Successfully Integrated!');
+            // Log successful smythos integration
+            console.log('🎉 smythos Validation Agent Successfully Integrated!');
             console.log(`📊 Confidence: ${(validationResult.confidence * 100).toFixed(1)}%`);
             console.log(`🔒 Risk Level: ${validationResult.riskLevel}`);
             console.log(`⚡ Auto-approve: ${validationResult.autoApprove ? 'Yes' : 'No'}`);
@@ -238,7 +238,7 @@ class AIService {
                     parseInt(response.headers['x-processing-time']) : undefined
             };
         } catch (error: any) {
-            console.error('❌ Langflow Validation Agent Error:', error);
+            console.error('❌ smythos Validation Agent Error:', error);
             console.log('🔄 Falling back to local validation logic');
 
             // Fallback validation logic for development
@@ -246,48 +246,48 @@ class AIService {
             return {
                 success: true,
                 data: fallbackResult,
-                error: 'Using fallback validation - Langflow service unavailable'
+                error: 'Using fallback validation - smythos service unavailable'
             };
         }
     }
 
-    // Matching Agent - Using Real Langflow Endpoint
+    // Matching Agent - Using Real smythos Endpoint
     async findMatches(request: MatchingRequest): Promise<AIResponse<MatchingResult>> {
         try {
-            console.log('🎯 Calling Langflow Matching Agent:', LANGFLOW_ENDPOINTS.matching);
+            console.log('🎯 Calling smythos Matching Agent:', smythos_ENDPOINTS.matching);
             console.log('📤 Request payload:', JSON.stringify(request, null, 2));
 
-            // Call the actual Langflow matching agent
-            const response: AxiosResponse<any> = await langflowClient.post(
-                LANGFLOW_ENDPOINTS.matching,
+            // Call the actual smythos matching agent
+            const response: AxiosResponse<any> = await smythosClient.post(
+                smythos_ENDPOINTS.matching,
                 request
             );
 
-            console.log('📥 Raw Langflow matching response:', response.data);
+            console.log('📥 Raw smythos matching response:', response.data);
 
-            // Extract the matching result from Langflow's nested response
+            // Extract the matching result from smythos's nested response
             let matchingResult: MatchingResult;
 
             if (response.data?.result?.Output?.matchResults) {
-                // Langflow format: {"result": {"Output": {"matchResults": {...}}}}
-                const langflowResult = response.data.result.Output.matchResults;
+                // smythos format: {"result": {"Output": {"matchResults": {...}}}}
+                const smythosResult = response.data.result.Output.matchResults;
                 matchingResult = {
-                    matches: langflowResult.matches || [],
-                    totalMatches: langflowResult.totalMatches || 0,
-                    processingTime: langflowResult.processingTime || 0,
-                    status: langflowResult.status || 'success',
-                    timestamp: langflowResult.timestamp
+                    matches: smythosResult.matches || [],
+                    totalMatches: smythosResult.totalMatches || 0,
+                    processingTime: smythosResult.processingTime || 0,
+                    status: smythosResult.status || 'success',
+                    timestamp: smythosResult.timestamp
                 };
             } else if (response.data?.matches) {
                 // Direct format (fallback compatibility)
                 matchingResult = response.data as MatchingResult;
             } else {
                 // Unexpected format - use fallback
-                throw new Error('Unexpected response format from Langflow matching agent');
+                throw new Error('Unexpected response format from smythos matching agent');
             }
 
             console.log('✅ Parsed matching result:', matchingResult);
-            console.log('🎉 Langflow Matching Agent Successfully Integrated!');
+            console.log('🎉 smythos Matching Agent Successfully Integrated!');
             console.log(`📊 Found ${matchingResult.totalMatches} matches`);
             console.log(`⏱️ Processing time: ${matchingResult.processingTime}ms`);
 
@@ -297,7 +297,7 @@ class AIService {
                 processingTime: matchingResult.processingTime
             };
         } catch (error: any) {
-            console.error('❌ Langflow Matching Agent Error:', error);
+            console.error('❌ smythos Matching Agent Error:', error);
             console.log('🔄 Falling back to local matching logic');
 
             // Fallback matching logic for development
@@ -305,7 +305,7 @@ class AIService {
             return {
                 success: true,
                 data: fallbackResult,
-                error: 'Using fallback matching - Langflow service unavailable'
+                error: 'Using fallback matching - smythos service unavailable'
             };
         }
     }
@@ -353,10 +353,10 @@ class AIService {
         matchId?: string;
     }>> {
         try {
-            console.log('🚚 Calling Langflow Routing Agent:', LANGFLOW_ENDPOINTS.routing);
+            console.log('🚚 Calling smythos Routing Agent:', smythos_ENDPOINTS.routing);
 
-            // Transform the request to match Langflow agent's expected format
-            const langflowRequest = {
+            // Transform the request to match smythos agent's expected format
+            const smythosRequest = {
                 matchId: request.matchId,
                 donationLocation: {
                     address: request.donationLocation.address,
@@ -386,24 +386,24 @@ class AIService {
                 }
             };
 
-            console.log('📤 Transformed request payload:', JSON.stringify(langflowRequest, null, 2));
+            console.log('📤 Transformed request payload:', JSON.stringify(smythosRequest, null, 2));
 
-            // Call the actual Langflow routing agent
-            const response: AxiosResponse<any> = await langflowClient.post(
-                LANGFLOW_ENDPOINTS.routing,
-                langflowRequest
+            // Call the actual smythos routing agent
+            const response: AxiosResponse<any> = await smythosClient.post(
+                smythos_ENDPOINTS.routing,
+                smythosRequest
             );
 
-            console.log('📥 Raw Langflow routing response:', response.data);
+            console.log('📥 Raw smythos routing response:', response.data);
 
-            // Extract the routing result from Langflow's nested response
+            // Extract the routing result from smythos's nested response
             let routingResult: any;
 
             if (response.data?.result?.Output?.assignmentResult) {
-                // Langflow format: {"result": {"Output": {"assignmentResult": {...}}}}
+                // smythos format: {"result": {"Output": {"assignmentResult": {...}}}}
                 routingResult = response.data.result.Output.assignmentResult;
             } else if (response.data?.outputs?.[0]?.outputs?.[0]?.results) {
-                // Alternative Langflow format
+                // Alternative smythos format
                 const results = response.data.outputs[0].outputs[0].results;
                 routingResult = typeof results === 'string' ? JSON.parse(results) : results;
 
@@ -416,11 +416,11 @@ class AIService {
                 routingResult = response.data;
             } else {
                 // Unexpected format - use fallback
-                throw new Error('Unexpected response format from Langflow routing agent');
+                throw new Error('Unexpected response format from smythos routing agent');
             }
 
             console.log('✅ Parsed routing result:', routingResult);
-            console.log('🎉 Langflow Routing Agent Successfully Integrated!');
+            console.log('🎉 smythos Routing Agent Successfully Integrated!');
             console.log(`🚚 Assigned volunteer: ${routingResult.assignedVolunteer?.name || 'Unknown'}`);
             console.log(`📏 Route distance: ${routingResult.simpleRoute?.totalDistance || 'Unknown'} km`);
 
@@ -431,7 +431,7 @@ class AIService {
                     parseInt(response.headers['x-processing-time']) : undefined
             };
         } catch (error: any) {
-            console.error('❌ Langflow Routing Agent Error:', error);
+            console.error('❌ smythos Routing Agent Error:', error);
             console.log('🔄 Falling back to local routing logic');
 
             // Fallback routing logic for development
@@ -439,7 +439,7 @@ class AIService {
             return {
                 success: true,
                 data: fallbackResult,
-                error: 'Using fallback routing - Langflow service unavailable'
+                error: 'Using fallback routing - smythos service unavailable'
             };
         }
     }
@@ -524,7 +524,7 @@ class AIService {
     }
 
     private fallbackMatching(_request: MatchingRequest): MatchingResult {
-        // Mock matching results for development (based on actual Langflow format)
+        // Mock matching results for development (based on actual smythos format)
         const mockMatches = [
             {
                 id: '53920072-4b8b-4c23-8820-41ebca6de44f',
@@ -602,7 +602,7 @@ class AIService {
     }
 
     private fallbackVolunteerAssignment(request: any): any {
-        // Mock volunteer assignment for development - matching actual Langflow format
+        // Mock volunteer assignment for development - matching actual smythos format
         console.log('Mock volunteer assignment:', request);
 
         return {
@@ -632,7 +632,7 @@ class AIService {
         };
     }
 
-    // General Chat/Conversation method for floating chatbot - Using Real Langflow Chat Agent
+    // General Chat/Conversation method for floating chatbot - Using Real smythos Chat Agent
     async processMessage(request: {
         message: string;
         context: {
@@ -644,13 +644,13 @@ class AIService {
         userId?: string;
     }): Promise<AIResponse<{ message: string; suggestions?: string[]; actions?: string[]; }>> {
         try {
-            console.log('💬 Calling Langflow Chat Agent:', LANGFLOW_ENDPOINTS.chat);
+            console.log('💬 Calling smythos Chat Agent:', smythos_ENDPOINTS.chat);
             console.log('📤 Chat request payload:', JSON.stringify(request, null, 2));
 
             // Generate session ID if not provided
             const sessionId = request.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-            // Convert conversation history to Langflow format
+            // Convert conversation history to smythos format
             const conversationHistory = request.context.conversationHistory.map((msg, index) => ({
                 id: msg.id || Date.now() + index,
                 role: msg.sender === 'user' ? 'user' : 'bot',
@@ -659,8 +659,8 @@ class AIService {
                 timestamp: msg.timestamp.toISOString()
             }));
 
-            // Prepare Langflow chat request
-            const langflowRequest = {
+            // Prepare smythos chat request
+            const smythosRequest = {
                 userMessage: request.message,
                 language: request.context.language,
                 sessionId: sessionId,
@@ -686,24 +686,24 @@ class AIService {
                 }
             };
 
-            // Call the actual Langflow chat agent
-            const response = await langflowClient.post(
-                LANGFLOW_ENDPOINTS.chat,
-                langflowRequest
+            // Call the actual smythos chat agent
+            const response = await smythosClient.post(
+                smythos_ENDPOINTS.chat,
+                smythosRequest
             );
 
-            console.log('📥 Raw Langflow chat response:', response.data);
+            console.log('📥 Raw smythos chat response:', response.data);
 
-            // Extract the chat result from Langflow's nested response
+            // Extract the chat result from smythos's nested response
             let chatResult: { message: string; suggestions?: string[]; actions?: string[]; };
 
             if (response.data?.result?.Output?.result) {
-                // Langflow format: {"result": {"Output": {"result": {...}}}}
-                const langflowResult = response.data.result.Output.result;
+                // smythos format: {"result": {"Output": {"result": {...}}}}
+                const smythosResult = response.data.result.Output.result;
                 chatResult = {
-                    message: langflowResult.response || langflowResult.message || 'No response available',
-                    suggestions: langflowResult.suggestions ? [langflowResult.suggestions] : undefined,
-                    actions: langflowResult.actions || undefined
+                    message: smythosResult.response || smythosResult.message || 'No response available',
+                    suggestions: smythosResult.suggestions ? [smythosResult.suggestions] : undefined,
+                    actions: smythosResult.actions || undefined
                 };
             } else if (response.data?.response || response.data?.message) {
                 // Direct format (fallback compatibility)
@@ -714,11 +714,11 @@ class AIService {
                 };
             } else {
                 // Unexpected format - use fallback
-                throw new Error('Unexpected response format from Langflow chat agent');
+                throw new Error('Unexpected response format from smythos chat agent');
             }
 
             console.log('✅ Parsed chat result:', chatResult);
-            console.log('🎉 Langflow Chat Agent Successfully Integrated!');
+            console.log('🎉 smythos Chat Agent Successfully Integrated!');
 
             return {
                 success: true,
@@ -728,7 +728,7 @@ class AIService {
             };
 
         } catch (error: any) {
-            console.error('❌ Langflow Chat Agent Error:', error);
+            console.error('❌ smythos Chat Agent Error:', error);
             console.log('🔄 Falling back to intelligent mock responses');
 
             // Fallback to intelligent mock responses for development
@@ -740,7 +740,7 @@ class AIService {
             return {
                 success: true,
                 data: fallbackResponse,
-                error: 'Using fallback chat responses - Langflow service unavailable'
+                error: 'Using fallback chat responses - smythos service unavailable'
             };
         }
     }
