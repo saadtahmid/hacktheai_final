@@ -1,52 +1,69 @@
-🚀 Copilot Instructions
-🛠 Workflow Guidelines
+# 🚀 Hackathon Copilot Guide
 
-Copilot should always follow this order when generating code for the project:
+This project is being built for a **hackathon**, and all code/suggestions from Copilot must align with the judging criteria.  
 
-1. Frontend First
+---
 
-Always generate UI components first (React / Next.js / Vue or chosen frontend framework).
+## 🎨 UI/UX Prototype & Design
+- Always start with **frontend prototypes first**.  
+- Build **intuitive, smooth, and consistent UI/UX**.  
+- Ensure **visual appeal and accessibility** across all components.  
 
-Make components modular and reusable.
+---
 
-Use mock data or stubs when backend/database is not ready.
+## 🗄 Database & Architecture
+- Create and review **ER diagrams** before implementing queries.  
+- Provide **activity diagrams** or clear workflows for architecture.  
+- **Do not write queries** until the schema is reviewed and confirmed.  
 
-Include clear prop names, type definitions, and comments.
+---
 
-2. Backend Second (APIs)
+## ⚙️ Features
+- **Small Features:** Multiple useful, well-polished implementations.  
+- **Big Feature:** At least one **innovative, deep feature** that stands out.  
+- Features must be **tested, relevant, and reliable**.  
 
-Only generate backend APIs after frontend requirements are clear.
+---
 
-Match the API responses exactly to what the frontend components expect.
+## 💡 Idea Usability & Uniqueness
+- Ensure the solution is **practical, useful, and original**.  
+- Focus on **real-world usability** and avoid generic clones.  
 
-Follow RESTful conventions (or GraphQL if specified).
+---
 
-Add validation, authentication (if needed), and error handling.
+## 🧑‍💻 Code Quality & Documentation
+- Code must be **clean, modular, and scalable**.  
+- Provide **clear documentation and inline comments**.  
+- Always explain **customization options** for features.  
 
-3. Database Last (Schema Review Required)
+---
 
-Before writing any SQL or ORM models, review the database schema.
+## 🔌 SmythOS API Usage
+- Use the **SmythOS API** in a **meaningful and innovative way**.  
+- Avoid relying only on basic functions—show creativity.  
 
-Suggest improvements or adjustments if schema doesn’t align with API needs.
+---
 
-Do not assume new tables—always confirm schema first.
+## ✅ Implementation & Demo
+- Ensure all features **work as expected**.  
+- Provide **demo-ready examples**, using mock data if necessary.  
+- Keep customization **easy and flexible**.  
 
-Implement queries only after schema approval (Supabase / Postgres / etc.).
+---
 
-✅ Additional Rules
+## 📊 Presentation
+- Explanations must follow a logical order: **problem → solution → demo**.  
+- Highlight **usability, innovation, and UI/UX quality**.  
+- Summarize: *what was built, how it works, why it matters*.  
 
-Keep code clean, documented, and consistent.
+---
 
-Always output copy-paste ready code.
+## 📝 Workflow for Copilot
+1. **Frontend First** → Build UI components with mock data.  
+2. **Backend APIs Second** → Define endpoints to match frontend needs.  
+3. **Database Last** → Review schema, then implement queries.  
+4. Always explain how each solution **meets hackathon judging metrics**.  
 
-Use mock data until backend/database is finalized.
+---
 
-Summarize what was built and what dependencies are required.
-
-⚡ Example Flow
-
-Copilot creates VolunteerCard.jsx with mock volunteer data.
-
-Copilot defines /api/volunteers endpoint returning the same structure.
-
-Copilot reviews the hackathon.volunteers table schema before writing queries.
+⚡ **Reminder:** Focus on **clarity, usability, and innovation** over complexity.
