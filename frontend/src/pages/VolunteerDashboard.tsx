@@ -5,6 +5,8 @@ import { useAuth } from '../hooks/useAuth';
 import { apiService } from '../services/api';
 import { LanguageSwitcher, useTranslation } from '../components/LanguageSwitcher';
 import { useTheme, getThemeColors } from '../components/ThemeProvider';
+import LeafletMapComponent from '../components/LeafletMapComponent';
+import { useRealTimeTracking } from '../hooks/useRealTimeTracking';
 
 interface VolunteerProfile {
   user_id: string;
@@ -104,8 +106,22 @@ const VolunteerDashboard: React.FC = () => {
   const [error, setError] = useState('');
   const [volunteerProfile, setVolunteerProfile] = useState<VolunteerProfile | null>(null);
   const [deliveryTasks, setDeliveryTasks] = useState<DeliveryTask[]>([]);
-  const [activeTab, setActiveTab] = useState<'tasks' | 'profile' | 'history'>('tasks');
+  const [activeTab, setActiveTab] = useState<'tasks' | 'profile' | 'history' | 'map'>('tasks');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+
+  // Real-time tracking integration
+  const {
+    currentLocation,
+    locationError,
+    isTracking,
+    startTracking,
+    stopTracking,
+    updateDeliveryStatus,
+    estimateArrivalTime
+  } = useRealTimeTracking({
+    volunteerId: user?.id || '',
+    isActive: activeTab === 'map' || activeTab === 'tasks'
+  });
   const [profileFormData, setProfileFormData] = useState({
     vehicle_type: '',
     max_capacity_kg: 0,
@@ -649,6 +665,7 @@ const VolunteerDashboard: React.FC = () => {
               style={{ display: 'flex' }}>
               {[
                 { id: 'tasks', label: { bn: 'বরাদ্দকৃত কাজ', en: 'Active Tasks' }, icon: '📦' },
+                { id: 'map', label: { bn: 'লাইভ ম্যাপ', en: 'Live Map' }, icon: '🗺️' },
                 { id: 'profile', label: { bn: 'প্রোফাইল', en: 'Profile' }, icon: '👤' },
                 { id: 'history', label: { bn: 'ইতিহাস', en: 'History' }, icon: '📋' }
               ].map(tab => (
@@ -858,6 +875,169 @@ const VolunteerDashboard: React.FC = () => {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'map' && (
+            <div className="space-y-6">
+              {/* Real-time Tracking Controls */}
+              <motion.div
+                className="rounded-xl shadow-lg p-6"
+                style={{ backgroundColor: colors.bg.tertiary, borderRadius: '0.75rem', boxShadow: colors.shadow, padding: '1.5rem' }}
+                variants={cardVariants}
+                whileHover="hover"
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold bangla-text" style={{ color: colors.text.primary }}>
+                    {language === 'bn' ? 'রিয়েল-টাইম ট্র্যাকিং' : 'Real-time Tracking'}
+                  </h2>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={isTracking ? stopTracking : startTracking}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${isTracking
+                          ? 'bg-red-600 text-white hover:bg-red-700'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.5rem',
+                        fontWeight: '500',
+                        backgroundColor: isTracking ? '#dc2626' : '#16a34a',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      {isTracking
+                        ? (language === 'bn' ? 'ট্র্যাকিং বন্ধ করুন' : 'Stop Tracking')
+                        : (language === 'bn' ? 'ট্র্যাকিং শুরু করুন' : 'Start Tracking')
+                      }
+                    </button>
+                  </div>
+                </div>
+
+                {/* Location Status */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="text-center p-4 rounded-lg" style={{ backgroundColor: colors.bg.secondary, borderRadius: '0.5rem', padding: '1rem' }}>
+                    <div className="text-2xl font-bold" style={{ color: isTracking ? colors.green.primary : colors.text.secondary }}>
+                      {isTracking ? '🟢' : '🔴'}
+                    </div>
+                    <p className="text-sm font-medium" style={{ color: colors.text.secondary }}>
+                      {language === 'bn' ? 'ট্র্যাকিং স্ট্যাটাস' : 'Tracking Status'}
+                    </p>
+                  </div>
+
+                  <div className="text-center p-4 rounded-lg" style={{ backgroundColor: colors.bg.secondary, borderRadius: '0.5rem', padding: '1rem' }}>
+                    <div className="text-2xl font-bold" style={{ color: currentLocation ? colors.green.primary : colors.text.secondary }}>
+                      📍
+                    </div>
+                    <p className="text-sm font-medium" style={{ color: colors.text.secondary }}>
+                      {currentLocation
+                        ? (language === 'bn' ? 'অবস্থান পাওয়া গেছে' : 'Location Found')
+                        : (language === 'bn' ? 'অবস্থান খোঁজা হচ্ছে' : 'Finding Location')
+                      }
+                    </p>
+                  </div>
+
+                  <div className="text-center p-4 rounded-lg" style={{ backgroundColor: colors.bg.secondary, borderRadius: '0.5rem', padding: '1rem' }}>
+                    <div className="text-2xl font-bold" style={{ color: deliveryTasks.length > 0 ? colors.green.primary : colors.text.secondary }}>
+                      📦
+                    </div>
+                    <p className="text-sm font-medium" style={{ color: colors.text.secondary }}>
+                      {language === 'bn' ? `${deliveryTasks.length} টি কাজ` : `${deliveryTasks.length} Tasks`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Error Display */}
+                {locationError && (
+                  <div className="mb-4 p-4 rounded-lg border-l-4 border-red-500" style={{ backgroundColor: '#fef2f2', borderLeft: '4px solid #ef4444' }}>
+                    <p className="text-sm font-medium" style={{ color: '#dc2626' }}>{locationError}</p>
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Google Maps Component */}
+              <motion.div
+                className="rounded-xl shadow-lg overflow-hidden"
+                style={{ backgroundColor: colors.bg.tertiary, borderRadius: '0.75rem', boxShadow: colors.shadow }}
+                variants={cardVariants}
+                whileHover="hover"
+              >
+                <div className="px-6 py-4 border-b" style={{ padding: '1rem 1.5rem', borderBottom: `1px solid ${colors.border.primary}` }}>
+                  <h3 className="text-lg font-semibold bangla-text" style={{ color: colors.text.primary }}>
+                    {language === 'bn' ? 'ডেলিভারি ম্যাপ' : 'Delivery Map'}
+                  </h3>
+                </div>
+
+                <div className="p-6" style={{ padding: '1.5rem' }}>
+                  <LeafletMapComponent
+                    locations={[
+                      // Add delivery task locations
+                      ...deliveryTasks.flatMap(task => [
+                        // Pickup location
+                        ...(task.donation?.pickup_coordinates ? [{
+                          id: `pickup-${task.id}`,
+                          lat: task.donation.pickup_coordinates.lat,
+                          lng: task.donation.pickup_coordinates.lng,
+                          title: task.donation.item_name,
+                          type: 'pickup' as const,
+                          description: `${language === 'bn' ? 'পিকআপ' : 'Pickup'}: ${task.donation.pickup_address}`,
+                          status: task.status
+                        }] : []),
+
+                        // Delivery location
+                        ...(task.request?.delivery_coordinates ? [{
+                          id: `delivery-${task.id}`,
+                          lat: task.request.delivery_coordinates.lat,
+                          lng: task.request.delivery_coordinates.lng,
+                          title: task.request.item_name,
+                          type: 'delivery' as const,
+                          description: `${language === 'bn' ? 'ডেলিভারি' : 'Delivery'}: ${task.request.delivery_address}`,
+                          status: task.status
+                        }] : [])
+                      ]),
+
+                      // Add demo locations when no real tasks are available (for demo purposes)
+                      ...(deliveryTasks.length === 0 ? [
+                        {
+                          id: 'demo-pickup-1',
+                          lat: 23.8103,
+                          lng: 90.4125,
+                          title: language === 'bn' ? 'খাদ্য সংগ্রহ' : 'Food Collection',
+                          type: 'pickup' as const,
+                          description: language === 'bn' ? 'ধানমন্ডি এলাকা থেকে খাদ্য সংগ্রহ' : 'Food collection from Dhanmondi area',
+                          status: 'assigned'
+                        },
+                        {
+                          id: 'demo-delivery-1',
+                          lat: 23.7806,
+                          lng: 90.4193,
+                          title: language === 'bn' ? 'পানীয় জল বিতরণ' : 'Water Distribution',
+                          type: 'delivery' as const,
+                          description: language === 'bn' ? 'পুরাতন ঢাকায় পানীয় জল পৌঁছে দিন' : 'Deliver water to Old Dhaka area',
+                          status: 'assigned'
+                        },
+                        {
+                          id: 'demo-pickup-2',
+                          lat: 23.8223,
+                          lng: 90.3654,
+                          title: language === 'bn' ? 'কম্বল সংগ্রহ' : 'Blanket Collection',
+                          type: 'pickup' as const,
+                          description: language === 'bn' ? 'উত্তরা থেকে কম্বল সংগ্রহ করুন' : 'Collect blankets from Uttara',
+                          status: 'assigned'
+                        }
+                      ] : [])
+                    ]}
+                    volunteerLocation={currentLocation || undefined}
+                    isTracking={isTracking}
+                    center={currentLocation || { lat: 23.8103, lng: 90.4125 }}
+                    zoom={13}
+                    className="w-full h-[500px]"
+                  />
+                </div>
+              </motion.div>
             </div>
           )}
 

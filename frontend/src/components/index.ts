@@ -5,3 +5,4 @@ export { LanguageSwitcher, useTranslation } from './LanguageSwitcher';
 export { default as NotificationCenter } from './NotificationCenter';
 export { default as Header } from './Header';
 export { ToastProvider, useToast } from './Toast';
+export { default as LeafletMapComponent } from './LeafletMapComponent';
