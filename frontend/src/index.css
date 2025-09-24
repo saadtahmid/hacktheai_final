@@ -1,0 +1,18 @@
+/* Custom Bangla font loading */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+.bangla-text {
+  font-family: 'Noto Sans Bengali', system-ui, sans-serif;
+}
+
+/* Ensure body has proper styling */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Noto Sans Bengali', system-ui, sans-serif;
+}
