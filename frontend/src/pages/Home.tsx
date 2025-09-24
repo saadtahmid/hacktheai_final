@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { LanguageSwitcher, useTranslation } from '../components';
 import { useTheme, getThemeColors } from '../components/ThemeProvider';
 import { useAuth } from '../hooks/useAuth';
@@ -10,6 +11,42 @@ const Home: React.FC = () => {
   const { isDark } = useTheme();
   const colors = getThemeColors(isDark);
   const { isAuthenticated, user, logout } = useAuth();
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.6 }
+    },
+    hover: {
+      scale: 1.05,
+      y: -5,
+      transition: { duration: 0.2 }
+    }
+  };
 
   // Auto-redirect authenticated users to their dashboard
   useEffect(() => {
@@ -97,11 +134,18 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white" style={{ minHeight: '100vh', background: colors.bg.gradient }}>
+    <motion.div
+      className="min-h-screen bg-gradient-to-br from-green-50 to-white"
+      style={{ minHeight: '100vh', background: colors.bg.gradient }}
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       {/* Header */}
-      <header
+      <motion.header
         className="bg-white shadow-lg border-b-2 border-green-100"
         style={{ backgroundColor: colors.bg.primary, boxShadow: colors.shadow, borderBottom: `2px solid ${colors.border.accent}` }}
+        variants={itemVariants}
       >
         <div
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
@@ -111,14 +155,21 @@ const Home: React.FC = () => {
             className="flex justify-between items-center"
             style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
           >
-            <h1
+            <motion.h1
               className="text-3xl font-black text-gray-900 bangla-text tracking-tight"
               style={{ fontSize: '1.875rem', fontWeight: '900', color: colors.text.primary, letterSpacing: '-0.025em' }}
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {t('home.title')}
-            </h1>
+            </motion.h1>
 
-            <div className="flex items-center space-x-4" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <motion.div
+              className="flex items-center space-x-4"
+              style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}
+              variants={itemVariants}
+            >
               {isAuthenticated && user ? (
                 <div className="flex items-center space-x-3" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span className="bangla-text font-medium" style={{ color: colors.text.primary, fontWeight: '500' }}>
@@ -165,52 +216,75 @@ const Home: React.FC = () => {
                 currentLanguage={language}
                 onLanguageChange={setLanguage}
               />
-            </div>
+            </motion.div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main Content */}
-      <main
+      <motion.main
         className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50"
         style={{ minHeight: '100vh', background: colors.bg.gradient }}
+        variants={itemVariants}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
-          style={{ maxWidth: '72rem', margin: '0 auto', padding: '4rem 1rem' }}>
+        <motion.div
+          className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+          style={{ maxWidth: '72rem', margin: '0 auto', padding: '4rem 1rem' }}
+          variants={containerVariants}
+        >
           {/* Hero Section */}
-          <div
+          <motion.div
             className="text-center mb-16"
             style={{ textAlign: 'center', marginBottom: '4rem' }}
+            variants={itemVariants}
           >
-            <h2
+            <motion.h2
               className="text-5xl font-black mb-6 bangla-text leading-tight"
               style={{ fontSize: '3rem', fontWeight: '900', color: colors.text.primary, marginBottom: '1.5rem', lineHeight: '1.1' }}
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
             >
               {t('home.title')}
-            </h2>
-            <p
+            </motion.h2>
+            <motion.p
               className="text-2xl max-w-4xl mx-auto bangla-text font-medium leading-relaxed"
               style={{ fontSize: '1.5rem', color: colors.text.secondary, maxWidth: '56rem', margin: '0 auto', fontWeight: '500', lineHeight: '1.6' }}
+              variants={itemVariants}
             >
               {t('home.subtitle')}
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Role Selection */}
-          <div className="mb-16" style={{ marginBottom: '4rem' }}>
-            <h3 className="text-3xl font-bold text-center mb-12 bangla-text" style={{ fontSize: '1.875rem', fontWeight: '700', textAlign: 'center', marginBottom: '3rem', color: colors.text.primary }}>
+          <motion.div
+            className="mb-16"
+            style={{ marginBottom: '4rem' }}
+            variants={itemVariants}
+          >
+            <motion.h3
+              className="text-3xl font-bold text-center mb-12 bangla-text"
+              style={{ fontSize: '1.875rem', fontWeight: '700', textAlign: 'center', marginBottom: '3rem', color: colors.text.primary }}
+              variants={itemVariants}
+            >
               {t('home.selectRole')}
-            </h3>
+            </motion.h3>
 
-            <div className="grid md:grid-cols-3 gap-8" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+            <motion.div
+              className="grid md:grid-cols-3 gap-8"
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}
+              variants={containerVariants}
+            >
               {/* Donor Card */}
-              <div
+              <motion.div
                 onClick={() => canAccessRole('donor') ? handleRoleSelect('donor') : undefined}
                 className={`rounded-xl shadow-lg p-8 text-center border-2 border-transparent transition-all duration-300 ${canAccessRole('donor')
-                    ? 'hover:border-green-300 hover:shadow-2xl hover:scale-105 cursor-pointer group'
-                    : 'cursor-not-allowed'
+                  ? 'cursor-pointer group'
+                  : 'cursor-not-allowed'
                   }`}
                 style={getRoleCardStyling('donor')}
+                variants={cardVariants}
+                whileHover={canAccessRole('donor') ? "hover" : undefined}
+                whileTap={canAccessRole('donor') ? { scale: 0.95 } : undefined}
               >
                 <div style={{ marginBottom: '1.5rem' }}>
                   <div
@@ -255,16 +329,19 @@ const Home: React.FC = () => {
                 >
                   {t('home.roles.donor.button')}
                 </button>
-              </div>
+              </motion.div>
 
               {/* NGO Card */}
-              <div
+              <motion.div
                 onClick={() => canAccessRole('ngo') ? handleRoleSelect('ngo') : undefined}
                 className={`rounded-xl shadow-lg p-8 text-center border-2 border-transparent transition-all duration-300 ${canAccessRole('ngo')
-                    ? 'hover:border-green-300 hover:shadow-2xl hover:scale-105 cursor-pointer group'
-                    : 'cursor-not-allowed'
+                  ? 'cursor-pointer group'
+                  : 'cursor-not-allowed'
                   }`}
                 style={getRoleCardStyling('ngo')}
+                variants={cardVariants}
+                whileHover={canAccessRole('ngo') ? "hover" : undefined}
+                whileTap={canAccessRole('ngo') ? { scale: 0.95 } : undefined}
               >
                 <div style={{ marginBottom: '1.5rem' }}>
                   <div
@@ -309,16 +386,19 @@ const Home: React.FC = () => {
                 >
                   {t('home.roles.ngo.button')}
                 </button>
-              </div>
+              </motion.div>
 
               {/* Volunteer Card */}
-              <div
+              <motion.div
                 onClick={() => canAccessRole('volunteer') ? handleRoleSelect('volunteer') : undefined}
                 className={`rounded-xl shadow-lg p-8 text-center border-2 border-transparent transition-all duration-300 ${canAccessRole('volunteer')
-                    ? 'hover:border-green-300 hover:shadow-2xl hover:scale-105 cursor-pointer group'
-                    : 'cursor-not-allowed'
+                  ? 'cursor-pointer group'
+                  : 'cursor-not-allowed'
                   }`}
                 style={getRoleCardStyling('volunteer')}
+                variants={cardVariants}
+                whileHover={canAccessRole('volunteer') ? "hover" : undefined}
+                whileTap={canAccessRole('volunteer') ? { scale: 0.95 } : undefined}
               >
                 <div style={{ marginBottom: '1.5rem' }}>
                   <div
@@ -363,17 +443,29 @@ const Home: React.FC = () => {
                 >
                   {t('home.roles.volunteer.button')}
                 </button>
-              </div>
-            </div>
-          </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
 
           {/* Features Section */}
-          <div className="text-center rounded-2xl shadow-lg p-12 mx-4" style={{ backgroundColor: colors.bg.tertiary, borderRadius: '1rem', boxShadow: colors.shadow, padding: '3rem', margin: '0 1rem' }}>
-            <h3 className="text-3xl font-bold mb-12 bangla-text" style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '3rem', color: colors.text.primary }}>
+          <motion.div
+            className="text-center rounded-2xl shadow-lg p-12 mx-4"
+            style={{ backgroundColor: colors.bg.tertiary, borderRadius: '1rem', boxShadow: colors.shadow, padding: '3rem', margin: '0 1rem' }}
+            variants={itemVariants}
+          >
+            <motion.h3
+              className="text-3xl font-bold mb-12 bangla-text"
+              style={{ fontSize: '1.875rem', fontWeight: '700', marginBottom: '3rem', color: colors.text.primary }}
+              variants={itemVariants}
+            >
               {t('home.features.title')}
-            </h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
-              <div className="p-6" style={{ padding: '1.5rem' }}>
+            </motion.h3>
+            <motion.div
+              className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}
+              variants={containerVariants}
+            >
+              <motion.div className="p-6" style={{ padding: '1.5rem' }} variants={itemVariants}>
                 <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ width: '4rem', height: '4rem', backgroundColor: colors.green.bg, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
                   <svg className="w-8 h-8" style={{ width: '2rem', height: '2rem', color: colors.green.primary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -382,8 +474,8 @@ const Home: React.FC = () => {
                 <p className="text-base bangla-text font-medium" style={{ fontSize: '1rem', color: colors.text.secondary, fontWeight: '500' }}>
                   {t('home.features.validation')}
                 </p>
-              </div>
-              <div className="p-6" style={{ padding: '1.5rem' }}>
+              </motion.div>
+              <motion.div className="p-6" style={{ padding: '1.5rem' }} variants={itemVariants}>
                 <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ width: '4rem', height: '4rem', backgroundColor: colors.green.bg, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
                   <svg className="w-8 h-8" style={{ width: '2rem', height: '2rem', color: colors.green.primary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -394,8 +486,8 @@ const Home: React.FC = () => {
                 <p className="text-base bangla-text font-medium" style={{ fontSize: '1rem', color: colors.text.secondary, fontWeight: '500' }}>
                   {t('home.features.matching')}
                 </p>
-              </div>
-              <div className="p-6" style={{ padding: '1.5rem' }}>
+              </motion.div>
+              <motion.div className="p-6" style={{ padding: '1.5rem' }} variants={itemVariants}>
                 <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ width: '4rem', height: '4rem', backgroundColor: colors.green.bg, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
                   <svg className="w-8 h-8" style={{ width: '2rem', height: '2rem', color: colors.green.primary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -404,8 +496,8 @@ const Home: React.FC = () => {
                 <p className="text-base bangla-text font-medium" style={{ fontSize: '1rem', color: colors.text.secondary, fontWeight: '500' }}>
                   {t('home.features.optimization')}
                 </p>
-              </div>
-              <div className="p-6" style={{ padding: '1.5rem' }}>
+              </motion.div>
+              <motion.div className="p-6" style={{ padding: '1.5rem' }} variants={itemVariants}>
                 <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ width: '4rem', height: '4rem', backgroundColor: colors.green.bg, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
                   <svg className="w-8 h-8" style={{ width: '2rem', height: '2rem', color: colors.green.primary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -415,12 +507,12 @@ const Home: React.FC = () => {
                 <p className="text-base bangla-text font-medium" style={{ fontSize: '1rem', color: colors.text.secondary, fontWeight: '500' }}>
                   {t('home.features.realtime')}
                 </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </motion.main>
+    </motion.div>
   );
 };
 

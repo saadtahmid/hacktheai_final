@@ -1,9 +1,50 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useTranslation, LanguageSwitcher } from '../components/LanguageSwitcher';
 import { useTheme, getThemeColors } from '../components/ThemeProvider';
 import { apiService } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
+
+// Animation variants
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: { opacity: 1, y: 0 },
+  out: { opacity: 0, y: -20 }
+};
+
+const containerVariants = {
+  initial: { opacity: 0 },
+  in: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 }
+  }
+};
+
+const cardVariants = {
+  initial: { opacity: 0, scale: 0.9 },
+  in: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.5 }
+  },
+  hover: {
+    scale: 1.02,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+    transition: { duration: 0.3 }
+  }
+};
 
 const NGORequestForm: React.FC = () => {
   const navigate = useNavigate();

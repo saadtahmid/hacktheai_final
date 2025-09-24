@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { apiService } from '../services/api';
 import { LanguageSwitcher, useTranslation } from '../components/LanguageSwitcher';
@@ -51,6 +52,46 @@ interface DeliveryTask {
   } | null;
   estimated_distance?: number;
 }
+
+// Animation variants
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: { opacity: 1, y: 0 },
+  out: { opacity: 0, y: -20 }
+};
+
+const containerVariants = {
+  initial: { opacity: 0 },
+  in: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 }
+  }
+};
+
+const cardVariants = {
+  initial: { opacity: 0, scale: 0.9 },
+  in: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.5 }
+  },
+  hover: {
+    scale: 1.02,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+    transition: { duration: 0.3 }
+  }
+};
 
 const VolunteerDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -386,19 +427,29 @@ const VolunteerDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen"
+    <motion.div
+      className="min-h-screen"
       style={{
         minHeight: '100vh',
         backgroundColor: colors.bg.primary
-      }}>
+      }}
+      variants={pageVariants}
+      initial="initial"
+      animate="in"
+      exit="out"
+      transition={{ duration: 0.5 }}
+    >
 
       {/* Header */}
-      <header className="shadow-lg border-b"
+      <motion.header
+        className="shadow-lg border-b"
         style={{
           backgroundColor: colors.bg.primary,
           boxShadow: colors.shadow,
           borderBottom: `1px solid ${colors.border.primary}`
-        }}>
+        }}
+        variants={itemVariants}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
           style={{ maxWidth: '80rem', margin: '0 auto', padding: '1.5rem' }}>
           <div className="flex justify-between items-center">
@@ -481,7 +532,7 @@ const VolunteerDashboard: React.FC = () => {
             </div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
@@ -1167,7 +1218,7 @@ const VolunteerDashboard: React.FC = () => {
           )}
         </div>
       </main>
-    </div>
+    </motion.div>
   );
 };
 

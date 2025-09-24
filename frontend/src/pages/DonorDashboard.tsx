@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme, getThemeColors } from '../components/ThemeProvider';
 import { Header } from '../components';
@@ -8,6 +9,46 @@ import { useAuth } from '../hooks/useAuth';
 import { aiService } from '../services/aiService';
 
 import type { ValidationResult } from '../services/aiService';
+
+// Animation variants
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: { opacity: 1, y: 0 },
+  out: { opacity: 0, y: -20 }
+};
+
+const containerVariants = {
+  initial: { opacity: 0 },
+  in: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 }
+  }
+};
+
+const cardVariants = {
+  initial: { opacity: 0, scale: 0.9 },
+  in: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.5 }
+  },
+  hover: {
+    scale: 1.02,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+    transition: { duration: 0.3 }
+  }
+};
 
 const DonorDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -365,36 +406,67 @@ const DonorDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ minHeight: '100vh', background: colors.bg.gradient }}>
+    <motion.div
+      className="min-h-screen"
+      style={{ minHeight: '100vh', background: colors.bg.gradient }}
+      variants={pageVariants}
+      initial="initial"
+      animate="in"
+      exit="out"
+      transition={{ duration: 0.5 }}
+    >
 
       {/* Header Component */}
       <Header title={t('dashboard.donor')} />
 
-      <main className="min-h-screen" style={{ minHeight: '100vh', background: colors.bg.gradient }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
-          style={{ maxWidth: '72rem', margin: '0 auto', padding: '4rem 1rem' }}>
+      <motion.main
+        className="min-h-screen"
+        style={{ minHeight: '100vh', background: colors.bg.gradient }}
+        variants={containerVariants}
+      >
+        <motion.div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+          style={{ maxWidth: '72rem', margin: '0 auto', padding: '4rem 1rem' }}
+          variants={itemVariants}
+        >
 
           {/* Hero Section */}
-          <div className="text-center mb-16" style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h1 className="text-5xl font-black mb-6 bangla-text leading-tight"
-              style={{ fontSize: '3rem', fontWeight: '900', color: colors.text.primary, marginBottom: '1.5rem', lineHeight: '1.1' }}>
+          <motion.div
+            className="text-center mb-16"
+            style={{ textAlign: 'center', marginBottom: '4rem' }}
+            variants={itemVariants}
+          >
+            <motion.h1
+              className="text-5xl font-black mb-6 bangla-text leading-tight"
+              style={{ fontSize: '3rem', fontWeight: '900', color: colors.text.primary, marginBottom: '1.5rem', lineHeight: '1.1' }}
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+            >
               {t('dashboard.title')}
-            </h1>
-            <p className="text-2xl max-w-4xl mx-auto bangla-text font-medium leading-relaxed"
-              style={{ fontSize: '1.5rem', color: colors.text.secondary, maxWidth: '56rem', margin: '0 auto', fontWeight: '500', lineHeight: '1.6' }}>
+            </motion.h1>
+            <motion.p
+              className="text-2xl max-w-4xl mx-auto bangla-text font-medium leading-relaxed"
+              style={{ fontSize: '1.5rem', color: colors.text.secondary, maxWidth: '56rem', margin: '0 auto', fontWeight: '500', lineHeight: '1.6' }}
+              variants={itemVariants}
+            >
               {t('dashboard.subtitle')}
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Main Form Container */}
-          <div className="rounded-xl shadow-lg p-8 mb-8"
+          <motion.div
+            className="rounded-xl shadow-lg p-8 mb-8"
             style={{
               backgroundColor: colors.bg.tertiary,
               borderRadius: '0.75rem',
               padding: '2rem',
               boxShadow: colors.shadow,
               marginBottom: '2rem'
-            }}>
+            }}
+            variants={cardVariants}
+            whileHover="hover"
+            initial="initial"
+            animate="in"
+          >
 
             <form onSubmit={handleSubmit}>
 
@@ -874,11 +946,17 @@ const DonorDashboard: React.FC = () => {
                 </div>
               )}
             </form>
-          </div>
+          </motion.div>
 
           {/* Chat Input Option */}
-          <div className="text-center rounded-xl shadow-lg p-8 mt-8"
-            style={{ backgroundColor: colors.bg.tertiary, borderRadius: '0.75rem', boxShadow: colors.shadow, padding: '2rem', margin: '2rem 0 0 0', textAlign: 'center' }}>
+          <motion.div
+            className="text-center rounded-xl shadow-lg p-8 mt-8"
+            style={{ backgroundColor: colors.bg.tertiary, borderRadius: '0.75rem', boxShadow: colors.shadow, padding: '2rem', margin: '2rem 0 0 0', textAlign: 'center' }}
+            variants={cardVariants}
+            whileHover="hover"
+            initial="initial"
+            animate="in"
+          >
             <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
               style={{ width: '4rem', height: '4rem', backgroundColor: colors.green.bg, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
               <svg className="w-8 h-8" style={{ width: '2rem', height: '2rem', color: colors.green.primary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -913,10 +991,10 @@ const DonorDashboard: React.FC = () => {
             >
               {t('donation.chatbot.openButton')}
             </button>
-          </div>
-        </div>
-      </main>
-    </div>
+          </motion.div>
+        </motion.div>
+      </motion.main>
+    </motion.div>
   );
 };
 

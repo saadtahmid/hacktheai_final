@@ -1,8 +1,44 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { useTranslation, LanguageSwitcher } from '../components/LanguageSwitcher';
 import { useTheme, getThemeColors } from '../components/ThemeProvider';
+
+// Animation variants
+const pageVariants = {
+  initial: { opacity: 0, scale: 0.9 },
+  in: { opacity: 1, scale: 1 },
+  out: { opacity: 0, scale: 1.1 }
+};
+
+const containerVariants = {
+  initial: { opacity: 0 },
+  in: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
+  initial: { opacity: 0, y: 30 },
+  in: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 }
+  }
+};
+
+const formVariants = {
+  initial: { opacity: 0, x: -20 },
+  in: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.5 }
+  }
+};
 
 const AuthPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,7 +79,8 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+    <motion.div
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
       style={{
         minHeight: '100vh',
         background: colors.bg.gradient,
@@ -51,12 +88,24 @@ const AuthPage: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '3rem 1rem'
-      }}>
+      }}
+      variants={pageVariants}
+      initial="initial"
+      animate="in"
+      exit="out"
+      transition={{ duration: 0.5 }}
+    >
 
-      <div className="max-w-md w-full space-y-8" style={{ maxWidth: '28rem', width: '100%' }}>
-        <div>
+      <motion.div
+        className="max-w-md w-full space-y-8"
+        style={{ maxWidth: '28rem', width: '100%' }}
+        variants={containerVariants}
+        initial="initial"
+        animate="in"
+      >
+        <motion.div variants={itemVariants}>
           <div className="flex justify-between items-center mb-6">
-            <button
+            <motion.button
               onClick={() => navigate('/')}
               className="flex items-center space-x-2 text-green-600 hover:text-green-700 hover:bg-green-50 px-3 py-2 rounded-lg transition-all duration-200"
               style={{
@@ -78,28 +127,48 @@ const AuthPage: React.FC = () => {
               <span className="text-sm font-medium bangla-text" style={{ fontSize: '0.875rem', fontWeight: '500' }}>
                 {language === 'bn' ? 'হোমে ফিরুন' : 'Back to Home'}
               </span>
-            </button>
+            </motion.button>
             <LanguageSwitcher currentLanguage={language} onLanguageChange={setLanguage} />
           </div>
 
-          <h2 className="mt-6 text-center text-3xl font-black bangla-text"
-            style={{ color: colors.text.primary, fontSize: '1.875rem', fontWeight: '900', textAlign: 'center' }}>
+          <motion.h2
+            className="mt-6 text-center text-3xl font-black bangla-text"
+            style={{ color: colors.text.primary, fontSize: '1.875rem', fontWeight: '900', textAlign: 'center' }}
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+          >
             {isLoginMode
               ? (language === 'bn' ? 'লগইন করুন' : 'Sign In')
               : (language === 'bn' ? 'নিবন্ধন করুন' : 'Sign Up')
             }
-          </h2>
-          <p className="mt-2 text-center bangla-text" style={{ color: colors.text.secondary, textAlign: 'center' }}>
+          </motion.h2>
+          <motion.p
+            className="mt-2 text-center bangla-text"
+            style={{ color: colors.text.secondary, textAlign: 'center' }}
+            variants={itemVariants}
+          >
             {language === 'bn'
               ? 'জনসংযোগ প্ল্যাটফর্মে স্বাগতম'
               : 'Welcome to Jonoshongjog Platform'
             }
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-xl shadow-lg p-6"
-            style={{ backgroundColor: colors.bg.tertiary, borderRadius: '0.75rem', boxShadow: colors.shadow, padding: '1.5rem' }}>
+        <motion.form
+          className="mt-8 space-y-6"
+          onSubmit={handleSubmit}
+          variants={formVariants}
+          initial="initial"
+          animate="in"
+        >
+          <motion.div
+            className="rounded-xl shadow-lg p-6"
+            style={{ backgroundColor: colors.bg.tertiary, borderRadius: '0.75rem', boxShadow: colors.shadow, padding: '1.5rem' }}
+            whileHover={{
+              boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+              transition: { duration: 0.3 }
+            }}
+          >
 
             {error && (
               <div className="mb-4 rounded-lg p-4 border-l-4"
@@ -307,10 +376,10 @@ const AuthPage: React.FC = () => {
                 }
               </button>
             </div>
-          </div>
-        </form>
-      </div>
-    </div>
+          </motion.div>
+        </motion.form>
+      </motion.div>
+    </motion.div>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation, LanguageSwitcher } from '../components/LanguageSwitcher';
 import { useTheme, getThemeColors } from '../components/ThemeProvider';
 import { aiService } from '../services/aiService';
@@ -9,6 +10,39 @@ interface Message {
   sender: 'user' | 'bot';
   timestamp: Date;
 }
+
+// Animation variants
+const pageVariants = {
+  initial: { opacity: 0 },
+  in: { opacity: 1 },
+  out: { opacity: 0 }
+};
+
+const messageVariants = {
+  initial: { opacity: 0, y: 20, scale: 0.9 },
+  in: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.3 }
+  },
+  out: {
+    opacity: 0,
+    y: -20,
+    scale: 0.9,
+    transition: { duration: 0.2 }
+  }
+};
+
+const containerVariants = {
+  initial: { opacity: 0 },
+  in: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 const AIChatbot: React.FC = () => {
   const { language, setLanguage } = useTranslation();
