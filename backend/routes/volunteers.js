@@ -26,8 +26,8 @@ router.get('/:id', async (req, res) => {
             .from('user_profiles')
             .select(`
         *,
-        user:users!user_id(full_name, phone, profile_image_url),
-        deliveries:deliveries!volunteer_id(
+        user:users!user_profiles_user_id_fkey(full_name, phone, profile_image_url, role),
+        deliveries:deliveries!deliveries_volunteer_id_fkey(
           *,
           match:matches(
             *,
@@ -37,11 +37,15 @@ router.get('/:id', async (req, res) => {
         )
       `)
             .eq('user_id', req.params.id)
-            .eq('user:role', 'volunteer')
             .single();
 
         if (error) throw error;
         if (!data) return res.status(404).json({ success: false, error: 'Volunteer not found' });
+
+        // Check if the user is actually a volunteer
+        if (data.user && data.user.role !== 'volunteer') {
+            return res.status(404).json({ success: false, error: 'User is not a volunteer' });
+        }
 
         res.json({
             success: true,
@@ -108,6 +112,21 @@ router.get('/:id/deliveries', async (req, res) => {
         const { status, limit = 50 } = req.query;
 
         const supabase = getSupabase();
+
+        // First get the user profile ID from user_id
+        const { data: profile, error: profileError } = await supabase
+            .from('user_profiles')
+            .select('id')
+            .eq('user_id', req.params.id)
+            .single();
+
+        if (profileError || !profile) {
+            return res.status(404).json({
+                success: false,
+                error: 'Volunteer profile not found'
+            });
+        }
+
         let query = supabase
             .from('deliveries')
             .select(`
@@ -118,7 +137,7 @@ router.get('/:id/deliveries', async (req, res) => {
           request:relief_requests(description, beneficiaries_count, delivery_address)
         )
       `)
-            .eq('volunteer_id', req.params.id)
+            .eq('volunteer_id', profile.id)
             .order('created_at', { ascending: false })
             .limit(limit);
 

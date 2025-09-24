@@ -58,6 +58,7 @@ import donationRoutes from './routes/donations.js';
 import requestRoutes from './routes/requests.js';
 import volunteerRoutes from './routes/volunteers.js';
 import matchingRoutes from './routes/matching.js';
+import deliveryRoutes from './routes/deliveries.js';
 import chatRoutes from './routes/chat.js';
 import authRoutes from './routes/auth.js';
 // Removed unused routes: ai.js, aiRouting.js, aiNotifications.js, simpleRouting.js, simpleNotifications.js
@@ -69,6 +70,7 @@ app.use('/api/donations', donationRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/volunteers', volunteerRoutes);
 app.use('/api/matching', matchingRoutes);
+app.use('/api/deliveries', deliveryRoutes);
 app.use('/api/chat', chatRoutes);
 // Removed unused route mounts - frontend uses aiService.ts for direct smythos integration
 

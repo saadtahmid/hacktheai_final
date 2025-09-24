@@ -289,9 +289,19 @@ class ApiService {
   }
 
   async getVolunteerDeliveries(userId: string, status?: string): Promise<ApiResponse<any[]>> {
-    const response = await apiClient.get(`/volunteers/${userId}/deliveries`, {
+    const response = await apiClient.get(`/deliveries/volunteer/${userId}`, {
       params: { status }
     });
+    return response.data;
+  }
+
+  async confirmDelivery(deliveryId: string, confirmationData: {
+    confirmation_notes?: string;
+    recipient_signature?: string;
+    photo_url?: string;
+  }): Promise<ApiResponse<any>> {
+    console.log(`📋 Confirming delivery ${deliveryId} (DUMMY)`);
+    const response = await apiClient.post(`/deliveries/${deliveryId}/confirm`, confirmationData);
     return response.data;
   }
 
@@ -338,12 +348,116 @@ class ApiService {
     return response.data;
   }
 
+  async updateMatchVolunteer(matchId: string, volunteerId: string): Promise<ApiResponse<Match>> {
+    console.log(`🤝 Updating match ${matchId} with volunteer ${volunteerId}`);
+    const response = await apiClient.put(`/matching/${matchId}/volunteer`, {
+      volunteer_id: volunteerId
+    });
+    return response.data;
+  }
+
   async getAIMatchingSuggestions(data: {
     request_id?: string;
     donation_id?: string;
     max_suggestions?: number;
   }): Promise<ApiResponse<any[]>> {
     const response = await apiClient.post('/matching/ai-suggest', data);
+    return response.data;
+  }
+
+  // Deliveries APIs
+  async createDelivery(deliveryData: {
+    match_id: string;
+    volunteer_id?: string;
+    pickup_location: string;
+    pickup_coordinates?: { lat: number; lng: number };
+    delivery_location: string;
+    delivery_coordinates?: { lat: number; lng: number };
+    scheduled_pickup?: string;
+    scheduled_delivery?: string;
+    special_instructions?: string;
+  }): Promise<ApiResponse<{
+    id: string;
+    match_id: string;
+    volunteer_id: string | null;
+    pickup_location: string;
+    pickup_coordinates: any;
+    delivery_location: string;
+    delivery_coordinates: any;
+    status: string;
+    scheduled_pickup: string | null;
+    scheduled_delivery: string | null;
+    actual_pickup: string | null;
+    actual_delivery: string | null;
+    special_instructions: string | null;
+    created_at: string;
+    updated_at: string;
+  }>> {
+    console.log('📦 Creating delivery record');
+    const response = await apiClient.post('/deliveries', deliveryData);
+    return response.data;
+  }
+
+  async getDeliveries(filters?: {
+    status?: string;
+    volunteer_id?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<ApiResponse<{
+    deliveries: Array<{
+      id: string;
+      match_id: string;
+      volunteer_id: string | null;
+      pickup_location: string;
+      pickup_coordinates: any;
+      delivery_location: string;
+      delivery_coordinates: any;
+      status: string;
+      scheduled_pickup: string | null;
+      scheduled_delivery: string | null;
+      actual_pickup: string | null;
+      actual_delivery: string | null;
+      special_instructions: string | null;
+      created_at: string;
+      updated_at: string;
+      match: any;
+      volunteer: any;
+    }>;
+    total: number;
+  }>> {
+    const response = await apiClient.get('/deliveries', { params: filters });
+    return response.data;
+  }
+
+  async updateDeliveryStatus(deliveryId: string, statusData: {
+    status: string;
+    actual_pickup?: string;
+    actual_delivery?: string;
+    notes?: string;
+  }): Promise<ApiResponse<{
+    id: string;
+    match_id: string;
+    volunteer_id: string | null;
+    status: string;
+    updated_at: string;
+  }>> {
+    console.log(`📦 Updating delivery ${deliveryId} status to ${statusData.status}`);
+    const response = await apiClient.put(`/deliveries/${deliveryId}/status`, statusData);
+    return response.data;
+  }
+
+  async assignVolunteerToDelivery(deliveryId: string, volunteerId: string): Promise<ApiResponse<{
+    id: string;
+    match_id: string;
+    volunteer_id: string;
+    status: string;
+    updated_at: string;
+    volunteer: any;
+  }>> {
+    console.log(`🚚 Assigning volunteer ${volunteerId} to delivery ${deliveryId}`);
+    const response = await apiClient.post(`/deliveries/${deliveryId}/assign-volunteer`, {
+      volunteer_id: volunteerId
+    });
     return response.data;
   }
 

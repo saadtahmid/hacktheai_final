@@ -111,79 +111,7 @@ interface MatchingResult {
     timestamp?: string;
 }
 
-// Route Optimization Types
-interface RouteOptimizationRequest {
-    volunteerId: string;
-    pickupLocations: Array<{
-        id: string;
-        lat: number;
-        lng: number;
-        address: string;
-        itemWeight: number;
-        priority: number;
-    }>;
-    deliveryLocations: Array<{
-        id: string;
-        lat: number;
-        lng: number;
-        address: string;
-        urgency: string;
-        timeWindow?: { start: string; end: string };
-    }>;
-    volunteerCapacity: {
-        maxWeight: number;
-        vehicleType: string;
-        workingHours: { start: string; end: string };
-    };
-}
 
-interface RouteOptimizationResult {
-    optimizedRoute: Array<{
-        stopId: string;
-        type: 'pickup' | 'delivery';
-        order: number;
-        estimatedArrival: string;
-        duration: number;
-        instructions: string;
-    }>;
-    totalDistance: number;
-    totalTime: number;
-    efficiency: number;
-    alternatives: number;
-}
-
-// Notification Agent Types
-interface NotificationRequest {
-    type: 'match_found' | 'pickup_assigned' | 'delivery_completed' | 'status_update';
-    recipients: Array<{
-        userId: string;
-        userType: 'donor' | 'ngo' | 'volunteer';
-        contactMethod: 'sms' | 'email' | 'push';
-        language: 'en' | 'bn';
-    }>;
-    content: {
-        title: string;
-        message: string;
-        actionUrl?: string;
-        priority: 'low' | 'normal' | 'high' | 'urgent';
-    };
-    context?: {
-        donationId?: string;
-        requestId?: string;
-        matchId?: string;
-        deliveryId?: string;
-    };
-}
-
-interface NotificationResult {
-    sent: number;
-    failed: number;
-    details: Array<{
-        userId: string;
-        status: 'sent' | 'failed';
-        error?: string;
-    }>;
-}
 
 // AI Service Class
 class AIService {
@@ -444,49 +372,7 @@ class AIService {
         }
     }
 
-    // Route Optimization Agent
-    async optimizeRoute(request: RouteOptimizationRequest): Promise<AIResponse<RouteOptimizationResult>> {
-        try {
-            const response: AxiosResponse<RouteOptimizationResult> = await aiClient.post('/optimize-route', request);
-            return {
-                success: true,
-                data: response.data,
-                processingTime: response.headers['x-processing-time']
-            };
-        } catch (error: any) {
-            console.error('Route Optimization Agent Error:', error);
 
-            // Fallback route optimization
-            const fallbackResult = this.fallbackRouteOptimization(request);
-            return {
-                success: true,
-                data: fallbackResult,
-                error: 'Using fallback routing - AI service unavailable'
-            };
-        }
-    }
-
-    // Notification Agent
-    async sendNotifications(request: NotificationRequest): Promise<AIResponse<NotificationResult>> {
-        try {
-            const response: AxiosResponse<NotificationResult> = await aiClient.post('/notify', request);
-            return {
-                success: true,
-                data: response.data,
-                processingTime: response.headers['x-processing-time']
-            };
-        } catch (error: any) {
-            console.error('Notification Agent Error:', error);
-
-            // Fallback notification logic
-            const fallbackResult = this.fallbackNotification(request);
-            return {
-                success: true,
-                data: fallbackResult,
-                error: 'Using fallback notifications - AI service unavailable'
-            };
-        }
-    }
 
     // Fallback Methods for Development
     private fallbackValidation(request: ValidationRequest): ValidationResult {
@@ -557,50 +443,7 @@ class AIService {
         };
     }
 
-    private fallbackRouteOptimization(request: RouteOptimizationRequest): RouteOptimizationResult {
-        // Simple route optimization for development
-        const allStops = [
-            ...request.pickupLocations.map((loc, index) => ({
-                stopId: loc.id,
-                type: 'pickup' as const,
-                order: index * 2 + 1,
-                estimatedArrival: new Date(Date.now() + (index + 1) * 60 * 60 * 1000).toISOString(),
-                duration: 15,
-                instructions: `Pick up items from ${loc.address}`
-            })),
-            ...request.deliveryLocations.map((loc, index) => ({
-                stopId: loc.id,
-                type: 'delivery' as const,
-                order: index * 2 + 2,
-                estimatedArrival: new Date(Date.now() + (index + 2) * 60 * 60 * 1000).toISOString(),
-                duration: 20,
-                instructions: `Deliver items to ${loc.address}`
-            }))
-        ];
-
-        return {
-            optimizedRoute: allStops,
-            totalDistance: 15.7,
-            totalTime: 240,
-            efficiency: 0.87,
-            alternatives: 3
-        };
-    }
-
-    private fallbackNotification(request: NotificationRequest): NotificationResult {
-        // Mock notification sending for development
-        console.log('Mock notification sent:', request);
-
-        return {
-            sent: request.recipients.length,
-            failed: 0,
-            details: request.recipients.map(recipient => ({
-                userId: recipient.userId,
-                status: 'sent' as const
-            }))
-        };
-    }
-
+  
     private fallbackVolunteerAssignment(request: any): any {
         // Mock volunteer assignment for development - matching actual smythos format
         console.log('Mock volunteer assignment:', request);
@@ -869,9 +712,5 @@ export type {
     ValidationResult,
     MatchingRequest,
     MatchingResult,
-    RouteOptimizationRequest,
-    RouteOptimizationResult,
-    NotificationRequest,
-    NotificationResult,
     AIResponse
 };

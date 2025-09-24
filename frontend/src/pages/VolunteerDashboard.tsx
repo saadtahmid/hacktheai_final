@@ -25,7 +25,13 @@ interface VolunteerProfile {
 interface DeliveryTask {
   id: string;
   match_id: string;
-  status: 'assigned' | 'in_transit' | 'delivered' | 'cancelled';
+  status: 'assigned' | 'in_transit_to_pickup' | 'picked_up' | 'in_transit_to_delivery' | 'delivered' | 'completed' | 'cancelled';
+  pickup_location?: string;
+  delivery_location?: string;
+  scheduled_pickup?: string;
+  scheduled_delivery?: string;
+  special_instructions?: string;
+  created_at: string;
   donation: {
     id: string;
     item_name: string;
@@ -33,18 +39,17 @@ interface DeliveryTask {
     quantity: number;
     unit: string;
     pickup_address: string;
-    pickup_coordinates: { lat: number; lng: number };
-  };
+    pickup_coordinates?: { lat: number; lng: number };
+  } | null;
   request: {
     id: string;
     item_name: string;
     delivery_address: string;
-    delivery_coordinates: { lat: number; lng: number };
+    delivery_coordinates?: { lat: number; lng: number };
     urgency: string;
     beneficiaries_count: number;
-  };
+  } | null;
   estimated_distance?: number;
-  created_at: string;
 }
 
 const VolunteerDashboard: React.FC = () => {
@@ -69,6 +74,7 @@ const VolunteerDashboard: React.FC = () => {
     availability_hours: [] as Array<{ day: string; start: string; end: string }>
   });
   const [profileUpdateLoading, setProfileUpdateLoading] = useState(false);
+  const [confirmingDelivery, setConfirmingDelivery] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -163,8 +169,11 @@ const VolunteerDashboard: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'assigned': return isDark ? 'bg-blue-900 text-blue-200 border-blue-700' : 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'in_transit': return isDark ? 'bg-yellow-900 text-yellow-200 border-yellow-700' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'delivered': return isDark ? 'bg-green-900 text-green-200 border-green-700' : 'bg-green-100 text-green-800 border-green-200';
+      case 'in_transit_to_pickup':
+      case 'in_transit_to_delivery': return isDark ? 'bg-yellow-900 text-yellow-200 border-yellow-700' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'picked_up': return isDark ? 'bg-purple-900 text-purple-200 border-purple-700' : 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'delivered':
+      case 'completed': return isDark ? 'bg-green-900 text-green-200 border-green-700' : 'bg-green-100 text-green-800 border-green-200';
       case 'cancelled': return isDark ? 'bg-red-900 text-red-200 border-red-700' : 'bg-red-100 text-red-800 border-red-200';
       default: return isDark ? 'bg-gray-800 text-gray-200 border-gray-600' : 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -173,8 +182,11 @@ const VolunteerDashboard: React.FC = () => {
   const getStatusText = (status: string) => {
     const statusTexts = {
       assigned: { bn: 'নির্ধারিত', en: 'Assigned' },
-      in_transit: { bn: 'পথে', en: 'In Transit' },
+      in_transit_to_pickup: { bn: 'পিকআপে যাচ্ছে', en: 'Going to Pickup' },
+      picked_up: { bn: 'পিকআপ সম্পন্ন', en: 'Picked Up' },
+      in_transit_to_delivery: { bn: 'ডেলিভারিতে যাচ্ছে', en: 'Going to Delivery' },
       delivered: { bn: 'সম্পন্ন', en: 'Delivered' },
+      completed: { bn: 'সম্পূর্ণ', en: 'Completed' },
       cancelled: { bn: 'বাতিল', en: 'Cancelled' }
     };
     return statusTexts[status as keyof typeof statusTexts]?.[language] || status;
@@ -231,6 +243,39 @@ const VolunteerDashboard: React.FC = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleConfirmDelivery = async (deliveryId: string) => {
+    try {
+      setConfirmingDelivery(deliveryId);
+
+      const confirmationData = {
+        confirmation_notes: 'Dummy confirmation notes for hackathon demo',
+        recipient_signature: 'dummy_signature_' + Date.now(),
+        photo_url: 'https://via.placeholder.com/400x300/22c55e/ffffff?text=Delivery+Confirmed'
+      };
+
+      const response = await apiService.confirmDelivery(deliveryId, confirmationData);
+
+      if (response.success) {
+        // Show success message or update UI
+        alert(language === 'bn'
+          ? '✅ ডেলিভারি নিশ্চিত হয়েছে! (ডেমো)'
+          : '✅ Delivery confirmed successfully! (Demo)'
+        );
+
+        // Refresh delivery tasks
+        await fetchVolunteerData();
+      }
+    } catch (error) {
+      console.error('Error confirming delivery:', error);
+      alert(language === 'bn'
+        ? '❌ ডেলিভারি নিশ্চিত করতে ব্যর্থ'
+        : '❌ Failed to confirm delivery'
+      );
+    } finally {
+      setConfirmingDelivery(null);
+    }
   };
 
   const vehicleOptions = [
@@ -532,7 +577,7 @@ const VolunteerDashboard: React.FC = () => {
                   {language === 'bn' ? 'সম্পন্ন' : 'Completed'}
                 </p>
                 <p className="text-3xl font-bold" style={{ fontSize: '1.875rem', fontWeight: '700', color: colors.text.primary }}>
-                  {deliveryTasks.filter(task => task.status === 'delivered').length}
+                  {deliveryTasks.filter(task => task.status === 'delivered' || task.status === 'completed').length}
                 </p>
               </div>
               <div className="w-12 h-12 rounded-full flex items-center justify-center"
@@ -667,15 +712,46 @@ const VolunteerDashboard: React.FC = () => {
                               <div className="flex items-center space-x-2">
                                 <span>📍</span>
                                 <span className="text-sm bangla-text" style={{ color: colors.text.secondary }}>
-                                  {language === 'bn' ? 'পিকআপ:' : 'Pickup:'} {task.donation?.pickup_address}
+                                  {language === 'bn' ? 'পিকআপ:' : 'Pickup:'} {task.donation?.pickup_address || task.pickup_location}
                                 </span>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <span>🎯</span>
                                 <span className="text-sm bangla-text" style={{ color: colors.text.secondary }}>
-                                  {language === 'bn' ? 'ডেলিভারি:' : 'Delivery:'} {task.request?.delivery_address}
+                                  {language === 'bn' ? 'ডেলিভারি:' : 'Delivery:'} {task.request?.delivery_address || task.delivery_location}
                                 </span>
                               </div>
+                              {task.request?.urgency && (
+                                <div className="flex items-center space-x-2">
+                                  <span>⚡</span>
+                                  <span className="text-sm bangla-text capitalize" style={{
+                                    color: task.request.urgency === 'high' || task.request.urgency === 'critical' ? '#dc2626' : colors.text.secondary
+                                  }}>
+                                    {language === 'bn' ? 'জরুরি:' : 'Urgency:'} {task.request.urgency}
+                                  </span>
+                                </div>
+                              )}
+                              {task.request?.beneficiaries_count && (
+                                <div className="flex items-center space-x-2">
+                                  <span>👥</span>
+                                  <span className="text-sm bangla-text" style={{ color: colors.text.secondary }}>
+                                    {language === 'bn' ? 'উপকারভোগী:' : 'Beneficiaries:'} {task.request.beneficiaries_count}
+                                  </span>
+                                </div>
+                              )}
+                              {task.special_instructions && (
+                                <div className="flex items-start space-x-2">
+                                  <span>📝</span>
+                                  <div className="flex-1">
+                                    <span className="text-sm bangla-text block" style={{ color: colors.text.secondary }}>
+                                      {language === 'bn' ? 'বিশেষ নির্দেশনা:' : 'Instructions:'}
+                                    </span>
+                                    <span className="text-sm bangla-text" style={{ color: colors.text.primary }}>
+                                      {task.special_instructions}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
                             <div className="flex items-center justify-between pt-4 border-t"
@@ -683,6 +759,42 @@ const VolunteerDashboard: React.FC = () => {
                               <span className="text-xs bangla-text" style={{ color: colors.text.tertiary }}>
                                 {new Date(task.created_at).toLocaleDateString(language === 'bn' ? 'bn-BD' : 'en-US')}
                               </span>
+
+                              {/* Delivery Action Buttons */}
+                              {(task.status === 'assigned' || task.status === 'picked_up') && (
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() => handleConfirmDelivery(task.id)}
+                                    disabled={confirmingDelivery === task.id}
+                                    className="px-4 py-2 text-sm rounded-lg font-medium transition-all duration-300 disabled:opacity-50"
+                                    style={{
+                                      backgroundColor: confirmingDelivery === task.id ? '#9ca3af' : colors.green.primary,
+                                      color: 'white',
+                                      padding: '0.5rem 1rem',
+                                      fontSize: '0.875rem',
+                                      borderRadius: '0.5rem',
+                                      border: 'none',
+                                      cursor: confirmingDelivery === task.id ? 'not-allowed' : 'pointer'
+                                    }}
+                                  >
+                                    {confirmingDelivery === task.id
+                                      ? (language === 'bn' ? 'নিশ্চিত করা হচ্ছে...' : 'Confirming...')
+                                      : (language === 'bn' ? 'ডেলিভারি নিশ্চিত করুন' : 'Confirm Delivery')
+                                    }
+                                  </button>
+                                </div>
+                              )}
+
+                              {(task.status === 'delivered' || task.status === 'completed') && (
+                                <div className="flex items-center space-x-2">
+                                  <svg className="w-4 h-4" style={{ width: '1rem', height: '1rem', color: colors.green.primary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  <span className="text-sm font-medium bangla-text" style={{ color: colors.green.primary }}>
+                                    {language === 'bn' ? 'সম্পন্ন' : 'Completed'}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
 

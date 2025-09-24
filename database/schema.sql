@@ -182,20 +182,34 @@ create table hackathon.deliveries (
   id uuid not null default gen_random_uuid (),
   match_id uuid null,
   volunteer_id uuid null,
+  
+  -- Pickup information
+  pickup_location text null,
+  pickup_coordinates jsonb null,
+  scheduled_pickup text null, -- Time string like "6:45 PM"
+  actual_pickup timestamp with time zone null,
+  
+  -- Delivery information  
+  delivery_location text null,
+  delivery_coordinates jsonb null,
+  scheduled_delivery text null, -- Time string like "6:53 PM"
+  actual_delivery timestamp with time zone null,
+  
+  -- Additional fields
+  special_instructions text null,
+  status hackathon.delivery_status null default 'assigned'::hackathon.delivery_status,
+  
+  -- Legacy fields (for backward compatibility)
   optimized_route jsonb null,
   estimated_distance_km numeric(8, 2) null,
   estimated_duration_minutes integer null,
-  pickup_scheduled_at timestamp with time zone null,
-  pickup_actual_at timestamp with time zone null,
-  pickup_notes text null,
-  delivery_scheduled_at timestamp with time zone null,
-  delivery_actual_at timestamp with time zone null,
-  delivery_notes text null,
-  status hackathon.delivery_status null default 'assigned'::hackathon.delivery_status,
   current_location point null,
   last_location_update timestamp with time zone null,
+  
+  -- Timestamps
   created_at timestamp with time zone null default now(),
   updated_at timestamp with time zone null default now(),
+  
   constraint deliveries_pkey primary key (id),
   constraint deliveries_match_id_fkey foreign KEY (match_id) references hackathon.matches (id) on delete CASCADE,
   constraint deliveries_volunteer_id_fkey foreign KEY (volunteer_id) references hackathon.user_profiles (id) on delete CASCADE
