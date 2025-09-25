@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LanguageSwitcher, useTranslation } from '../components';
+import { LanguageSwitcher, useTranslation, NaturalDisasterInfo, Testimonials } from '../components';
 import { useTheme, getThemeColors } from '../components/ThemeProvider';
 import { useAuth } from '../hooks/useAuth';
 
@@ -511,6 +511,12 @@ const Home: React.FC = () => {
             </motion.div>
           </motion.div>
         </motion.div>
+
+        {/* Natural Disaster Information Section */}
+        <NaturalDisasterInfo />
+
+        {/* Testimonials Section */}
+        <Testimonials />
       </motion.main>
     </motion.div>
   );
