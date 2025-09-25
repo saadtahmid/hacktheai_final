@@ -773,6 +773,67 @@ const NGORequestForm: React.FC = () => {
                 </div>
               </div>
 
+              {/* Audit Report Section */}
+              <div className="rounded-xl shadow-lg p-6 mb-8"
+                style={{ backgroundColor: colors.bg.tertiary, borderRadius: '0.75rem', boxShadow: colors.shadow, padding: '1.5rem', marginBottom: '2rem' }}>
+                <h3 className="text-xl font-bold mb-4 bangla-text"
+                  style={{ fontSize: '1.25rem', fontWeight: '700', color: colors.text.primary, marginBottom: '1rem' }}>
+                  {language === 'bn' ? 'অডিট ও ডকুমেন্টেশন' : 'Audit & Documentation'}
+                </h3>
+                <p className="text-sm mb-4 bangla-text"
+                  style={{ fontSize: '0.875rem', color: colors.text.secondary, marginBottom: '1rem' }}>
+                  {language === 'bn'
+                    ? 'স্বচ্ছতার জন্য আপনার সংস্থার অডিট রিপোর্ট বা সংশ্লিষ্ট ডকুমেন্ট জমা দিন'
+                    : 'Submit your organization\'s audit report or related documents for transparency'}
+                </p>
+                
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Dummy audit report upload functionality for demo
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+                      input.multiple = true;
+                      input.onchange = (e: any) => {
+                        const files = Array.from(e.target.files);
+                        if (files.length > 0) {
+                          const fileNames = (files as File[]).map(f => f.name).join(', ');
+                          alert(language === 'bn' 
+                            ? `📋 অডিট ডকুমেন্ট আপলোড হয়েছে:\n${fileNames}\n(ডেমো - প্রকৃত আপলোড নয়)` 
+                            : `📋 Audit documents uploaded:\n${fileNames}\n(Demo - Not actually uploaded)`
+                          );
+                        }
+                      };
+                      input.click();
+                    }}
+                    className="px-6 py-3 text-base font-semibold rounded-lg border-2 border-dashed transition-all duration-300 hover:scale-105"
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: colors.text.primary,
+                      padding: '0.75rem 1.5rem',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      borderRadius: '0.5rem',
+                      border: `2px dashed ${colors.border.accent}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    📋 {language === 'bn' ? 'অডিট রিপোর্ট জমা দিন' : 'Submit Audit Report'}
+                  </button>
+                </div>
+                
+                <div className="mt-3 text-center">
+                  <span className="text-xs bangla-text" style={{ fontSize: '0.75rem', color: colors.text.tertiary }}>
+                    {language === 'bn' 
+                      ? 'সাপোর্টেড ফরম্যাট: PDF, DOC, DOCX, JPG, PNG' 
+                      : 'Supported formats: PDF, DOC, DOCX, JPG, PNG'}
+                  </span>
+                </div>
+              </div>
+
               {/* Submit Button */}
               <div className="flex justify-center" style={{ display: 'flex', justifyContent: 'center' }}>
                 <button

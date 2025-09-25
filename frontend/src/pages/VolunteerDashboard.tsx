@@ -830,7 +830,41 @@ const VolunteerDashboard: React.FC = () => {
 
                               {/* Delivery Action Buttons */}
                               {(task.status === 'assigned' || task.status === 'picked_up') && (
-                                <div className="flex space-x-2">
+                                <div className="flex flex-col space-y-2">
+                                  {/* Photo Upload Button */}
+                                  <button
+                                    onClick={() => {
+                                      // Dummy photo upload functionality for demo
+                                      const input = document.createElement('input');
+                                      input.type = 'file';
+                                      input.accept = 'image/*';
+                                      input.onchange = (e: any) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                          alert(language === 'bn' 
+                                            ? `📸 ছবি আপলোড হয়েছে: ${file.name} (ডেমো)` 
+                                            : `📸 Photo uploaded: ${file.name} (Demo)`
+                                          );
+                                        }
+                                      };
+                                      input.click();
+                                    }}
+                                    className="px-4 py-2 text-sm rounded-lg font-medium transition-all duration-300 border-2 border-dashed hover:scale-105"
+                                    style={{
+                                      backgroundColor: 'transparent',
+                                      color: colors.text.primary,
+                                      padding: '0.5rem 1rem',
+                                      fontSize: '0.875rem',
+                                      borderRadius: '0.5rem',
+                                      border: `2px dashed ${colors.border.primary}`,
+                                      cursor: 'pointer',
+                                      transition: 'all 0.3s ease'
+                                    }}
+                                  >
+                                    📸 {language === 'bn' ? 'ছবি আপলোড' : 'Upload Photo'}
+                                  </button>
+                                  
+                                  {/* Confirm Delivery Button */}
                                   <button
                                     onClick={() => handleConfirmDelivery(task.id)}
                                     disabled={confirmingDelivery === task.id}
