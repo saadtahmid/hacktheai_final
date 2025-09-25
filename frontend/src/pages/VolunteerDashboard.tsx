@@ -841,8 +841,8 @@ const VolunteerDashboard: React.FC = () => {
                                       input.onchange = (e: any) => {
                                         const file = e.target.files[0];
                                         if (file) {
-                                          alert(language === 'bn' 
-                                            ? `📸 ছবি আপলোড হয়েছে: ${file.name} (ডেমো)` 
+                                          alert(language === 'bn'
+                                            ? `📸 ছবি আপলোড হয়েছে: ${file.name} (ডেমো)`
                                             : `📸 Photo uploaded: ${file.name} (Demo)`
                                           );
                                         }
@@ -863,7 +863,7 @@ const VolunteerDashboard: React.FC = () => {
                                   >
                                     📸 {language === 'bn' ? 'ছবি আপলোড' : 'Upload Photo'}
                                   </button>
-                                  
+
                                   {/* Confirm Delivery Button */}
                                   <button
                                     onClick={() => handleConfirmDelivery(task.id)}
@@ -929,8 +929,8 @@ const VolunteerDashboard: React.FC = () => {
                     <button
                       onClick={isTracking ? stopTracking : startTracking}
                       className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${isTracking
-                          ? 'bg-red-600 text-white hover:bg-red-700'
-                          : 'bg-green-600 text-white hover:bg-green-700'
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-green-600 text-white hover:bg-green-700'
                         }`}
                       style={{
                         padding: '0.5rem 1rem',

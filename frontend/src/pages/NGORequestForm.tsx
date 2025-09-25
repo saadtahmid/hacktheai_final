@@ -786,7 +786,7 @@ const NGORequestForm: React.FC = () => {
                     ? 'স্বচ্ছতার জন্য আপনার সংস্থার অডিট রিপোর্ট বা সংশ্লিষ্ট ডকুমেন্ট জমা দিন'
                     : 'Submit your organization\'s audit report or related documents for transparency'}
                 </p>
-                
+
                 <div className="flex justify-center">
                   <button
                     type="button"
@@ -800,8 +800,8 @@ const NGORequestForm: React.FC = () => {
                         const files = Array.from(e.target.files);
                         if (files.length > 0) {
                           const fileNames = (files as File[]).map(f => f.name).join(', ');
-                          alert(language === 'bn' 
-                            ? `📋 অডিট ডকুমেন্ট আপলোড হয়েছে:\n${fileNames}\n(ডেমো - প্রকৃত আপলোড নয়)` 
+                          alert(language === 'bn'
+                            ? `📋 অডিট ডকুমেন্ট আপলোড হয়েছে:\n${fileNames}\n(ডেমো - প্রকৃত আপলোড নয়)`
                             : `📋 Audit documents uploaded:\n${fileNames}\n(Demo - Not actually uploaded)`
                           );
                         }
@@ -824,11 +824,11 @@ const NGORequestForm: React.FC = () => {
                     📋 {language === 'bn' ? 'অডিট রিপোর্ট জমা দিন' : 'Submit Audit Report'}
                   </button>
                 </div>
-                
+
                 <div className="mt-3 text-center">
                   <span className="text-xs bangla-text" style={{ fontSize: '0.75rem', color: colors.text.tertiary }}>
-                    {language === 'bn' 
-                      ? 'সাপোর্টেড ফরম্যাট: PDF, DOC, DOCX, JPG, PNG' 
+                    {language === 'bn'
+                      ? 'সাপোর্টেড ফরম্যাট: PDF, DOC, DOCX, JPG, PNG'
                       : 'Supported formats: PDF, DOC, DOCX, JPG, PNG'}
                   </span>
                 </div>
